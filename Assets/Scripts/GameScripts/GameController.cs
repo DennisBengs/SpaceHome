@@ -215,7 +215,7 @@ public sealed class GameController : MonoBehaviour {
     public Module GetRandomModule(List<Module> ignore = null) {
         List<Module> candidates = new List<Module>();
         foreach (Module module in modules) {
-            if (ignore == null || !ignore.contains(module)) {
+            if (ignore == null || !ignore.Contains(module)) {
                 candidates.Add(module);
             }
         }
