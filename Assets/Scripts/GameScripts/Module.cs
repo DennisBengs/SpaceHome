@@ -4,7 +4,12 @@ using System.Collections.Generic;
 public sealed class Module : MonoBehaviour {
     public enum ModuleType {
         Empty,
-        Hydroponics
+        Hydroponics,
+        SolarCells, 
+        Elevator,
+        HPG,
+        PointDefense,
+        RobotControl
     }
     
     public bool IsDestroyed { get; private set; }
