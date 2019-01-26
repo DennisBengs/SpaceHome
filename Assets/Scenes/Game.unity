@@ -387,7 +387,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d16ad5a1df10b584790fdb35d24ff9aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridTile: {fileID: 0}
+  GridTile: {fileID: 4097518601456590765, guid: 6639c723c961a8c4db2197e4823d35f3,
+    type: 3}
 --- !u!4 &835593347
 Transform:
   m_ObjectHideFlags: 0
