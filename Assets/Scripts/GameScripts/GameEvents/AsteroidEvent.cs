@@ -40,7 +40,7 @@ public sealed class AsteroidEvent : GameEvent {
             int i = 0;
             foreach (Transform asteroid in Asteroids) {
                 Module module = GameController.Instance.GetRandomModule();
-                asteroid.position = Vector3.Lerp(AsteroidOrigin[i], new Vector3(17.777f, 0.0f, 0.0f), deltaPos);
+                asteroid.position = Vector3.Lerp(AsteroidOrigin[i], module.GetCenter(), deltaPos);
                 i++;
             }
         }
