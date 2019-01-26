@@ -33,4 +33,13 @@ public sealed class Module : MonoBehaviour {
 
     public void EndTurn() {
     }
+    
+    public Vector3 GetCenter() {
+        Vector3 avg = new Vector3();
+        foreach (Point tile in Tiles) {
+            avg.x += transform.position.x + tile.x * GameController.Instance.TileSize;
+            avg.y += transform.position.y + tile.y * GameController.Instance.TileSize;
+        }
+        return avg / Tiles.Count;
+    }
 }
