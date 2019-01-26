@@ -166,7 +166,7 @@ public sealed class Module : MonoBehaviour {
                 (tile.x + 0.5f) * GameController.Instance.TileSize,
                 (tile.y + 0.5f) * GameController.Instance.TileSize,
                 3.0f);
-            interiors.Add(sprite);
+            exteriors.Add(sprite);
 
             sprite = Instantiate(SpriteTemplate);
             sprite.sprite = TileInteriorSprite;
@@ -175,7 +175,7 @@ public sealed class Module : MonoBehaviour {
                 (tile.x + 0.5f) * GameController.Instance.TileSize,
                 (tile.y + 0.5f) * GameController.Instance.TileSize,
                 2.0f);
-            exteriors.Add(sprite);
+            interiors.Add(sprite);
                 
             sprite = Instantiate(SpriteTemplate);
             sprite.sprite = TileDamageSprite;
