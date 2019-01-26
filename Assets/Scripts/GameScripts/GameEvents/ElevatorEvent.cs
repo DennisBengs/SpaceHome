@@ -10,21 +10,23 @@ public class ElevatorEvent : GameEvent
     public Sprite Human;
     public Sprite Module;
     private List<Image> SelectButtons;
+    private Button ConfirmButton;
     private int SelectedButton;
-    private bool ConfirmedForTurn;
+    private bool ConfirmedSelection;
 
     public override void EndTurn() {
     }
 
     public override void StartTurn() {
-        ConfirmedForTurn = false;
+        ConfirmedSelection = false;
         SelectButtons[0].sprite = Food;
         SelectButtons[1].sprite = Power;
         SelectButtons[2].sprite = Human;
     }
 
     public void SelectShopItem(int ClickedButton) {
-        if(!ConfirmedForTurn) {
+        if(!ConfirmedSelection) {
+
             foreach (Image button in SelectButtons) {
                 button.gameObject.GetComponent<Button>().enabled = true;
                 button.color = new Color(1.0f, 1.0f, 1.0f);
@@ -32,11 +34,18 @@ public class ElevatorEvent : GameEvent
 
             SelectedButton = ClickedButton;
             SelectButtons[ClickedButton].color = new Color(0.0f, 0.0f, 0.0f);
+
+            ConfirmButton.enabled = true;
+            ConfirmButton.gameObject.GetComponent<Image>().color = new Color(0.0f, 0.8f, 0.0f);
+            GameObject.Find("Text").GetComponent<Text>().color = new Color(1.0f, 1.0f, 1.0f);
         }
     }
 
     public void Confirm() {
-        ConfirmedForTurn = true;
+        ConfirmButton.enabled = false;
+        ConfirmButton.gameObject.GetComponent<Image>().color = new Color(0.4f, 0.5f, 0.4f);
+        GameObject.Find("Text").GetComponent<Text>().color = new Color(0.7f, 0.7f, 0.7f);
+        ConfirmedSelection = true;
         foreach(Image button in SelectButtons) {
             button.gameObject.GetComponent<Button>().enabled = false;
             button.color = new Color(0.5f, 0.5f, 0.5f, 0.8f);
@@ -48,10 +57,15 @@ public class ElevatorEvent : GameEvent
     // Start is called before the first frame update
     void Start()
     {
+        
         SelectButtons = new List<Image>();
         SelectButtons.Add(GameObject.Find("SelectButton1").GetComponent<Image>());
         SelectButtons.Add(GameObject.Find("SelectButton2").GetComponent<Image>());
         SelectButtons.Add(GameObject.Find("SelectButton3").GetComponent<Image>());
+        ConfirmButton = GameObject.Find("ConfirmButton").GetComponent<Button>();
+        ConfirmButton.enabled = false;
+        ConfirmButton.gameObject.GetComponent<Image>().color = new Color(0.4f, 0.5f, 0.4f);
+        GameObject.Find("Text").GetComponent<Text>().color = new Color(0.7f, 0.7f, 0.7f);
         StartTurn();
     }
 
