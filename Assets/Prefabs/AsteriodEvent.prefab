@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 177014595}
   - component: {fileID: 177014594}
   m_Layer: 0
-  m_Name: AsteriodEvent 1
+  m_Name: AsteriodEvent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,6 +45,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Border: {fileID: 288942494}
+  Asteroid: {fileID: 8997680949938532182, guid: 01a2bc6d5f727ad46a6973f2b00241d9,
+    type: 3}
 --- !u!1 &288942492
 GameObject:
   m_ObjectHideFlags: 0
