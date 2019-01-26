@@ -805,6 +805,10 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 104410053, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
+      propertyPath: m_PreserveAspect
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 104410052, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
@@ -832,6 +836,14 @@ PrefabInstance:
     - target: {fileID: 104410052, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 372000825, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 372000825, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
+      propertyPath: m_PreserveAspect
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 372000824, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -885,6 +897,23 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 1801047274, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1801047274, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1801047274, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
+      propertyPath: m_PreserveAspect
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1801047274, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 33d15d6d5a6682844a5af2848a824846,
+        type: 3}
     - target: {fileID: 1801047273, guid: c246dd369b61f0d46938cfcfe2363e85, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
