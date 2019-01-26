@@ -387,7 +387,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d16ad5a1df10b584790fdb35d24ff9aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridTile: {fileID: 4097518601456590765, guid: 6639c723c961a8c4db2197e4823d35f3,
+  GridTile: {fileID: 2837687043328900040, guid: 24c4a1c73145de84e8fcc7d66dd2ec00,
     type: 3}
 --- !u!4 &835593347
 Transform:
@@ -546,7 +546,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ElevatorModule: {fileID: 0}
-  BaseModule: {fileID: 0}
+  BaseModule: {fileID: 1769721565768212714, guid: 18b6af98f14401c4b8b99337d4c0e889,
+    type: 3}
 --- !u!4 &2002644630
 Transform:
   m_ObjectHideFlags: 0

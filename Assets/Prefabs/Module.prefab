@@ -43,3 +43,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73996359d4f4c474d96c3ef0b2c083c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SpriteTemplate: {fileID: 6143205951041340382, guid: a925b71fe43d3544c94c5acf7433448b,
+    type: 3}
+  CrewPositionTemplate: {fileID: 0}
+  ElevatorSprite: {fileID: 0}
+  TileExteriorSprite: {fileID: 21300000, guid: bb540358560f26f45b79cf8a7374d537, type: 3}
+  TileInteriorSprite: {fileID: 21300000, guid: 04f8e3a984c8061409228685b1551e26, type: 3}
+  TileInteriorJoinSprite: {fileID: 21300000, guid: 0e51bc60d16958f45819cf2a391386ef,
+    type: 3}
+  TileConnectorSprite: {fileID: 21300000, guid: deb57bf912271c344b81a9adb09dd38f,
+    type: 3}
+  TileDamageSprite: {fileID: 21300000, guid: f279166b159ead347826293caf78bdbe, type: 3}
+  PlaceColor: {r: 0.3, g: 0.3, b: 1, a: 0.5}
+  UnpoweredColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  UnderConstructionColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  DamageColor: {r: 1, g: 0, b: 0, a: 1}
+  TypeColors:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
+  - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  - {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  - {r: 0, g: 0, b: 1, a: 1}
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 0, g: 1, b: 1, a: 1}
+  TypeIconSprites:
+  - {fileID: 21300000, guid: 4f9eb030b60d2f245be1e2a1efe4a958, type: 3}
+  - {fileID: 21300000, guid: 4f9eb030b60d2f245be1e2a1efe4a958, type: 3}
+  - {fileID: 21300000, guid: 4f9eb030b60d2f245be1e2a1efe4a958, type: 3}
+  - {fileID: 21300000, guid: 4f9eb030b60d2f245be1e2a1efe4a958, type: 3}
+  - {fileID: 21300000, guid: 4f9eb030b60d2f245be1e2a1efe4a958, type: 3}
+  - {fileID: 21300000, guid: 4f9eb030b60d2f245be1e2a1efe4a958, type: 3}
+  - {fileID: 21300000, guid: 4f9eb030b60d2f245be1e2a1efe4a958, type: 3}

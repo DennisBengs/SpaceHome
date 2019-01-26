@@ -1,14 +1,25 @@
 using UnityEngine;
 
 public sealed class ModuleFactory : MonoBehaviour {
-    public Module ElevatorModule;
+    public static ModuleFactory Instance = null; 
+    
     public Module BaseModule;
     
-    public Module CreateElevatorModule() {
-        return Instantiate(ElevatorModule);
+    private void Awake() {
+        if (Instance == null) {
+            Instance = this;
+        }
+    }
+    
+    public Module CreateElevatorModule(Point offset) {
+        Module module = Instantiate(BaseModule);
+        module.Setup(Module.ModuleType.Elevator, offset);
+        return module;
     }
 
-    public Module CreateRandomModule() {
-        return Instantiate(BaseModule);
+    public Module CreateRandomModule(Point offset) {
+        Module module = Instantiate(BaseModule);
+        module.Setup(Module.ModuleType.Empty, offset);
+        return module;
     }
 }

@@ -53,7 +53,7 @@ public sealed class GameController : MonoBehaviour {
     private List<Module> modules = new List<Module>();
     private List<GameEvent> gameEvents = new List<GameEvent>();
 
-    private void Awake() {
+    private void Start() {
         if (Instance == null) {
             Instance = this;
         }
@@ -82,17 +82,24 @@ public sealed class GameController : MonoBehaviour {
     }
     
     private IEnumerator PlayIntroRoutine() {
-        yield return new WaitForSeconds(1);
+        StartGame();
+        
+        yield return null;
     }
     
     private IEnumerator StartGameRoutine() {
-        yield return new WaitForSeconds(1);
-        
+        ModuleFactory.Instance.CreateElevatorModule(new Point(Random.Range(2, GridSizeX - 3), Random.Range(0, GridSizeY - 3)));
+        ModuleFactory.Instance.CreateRandomModule(new Point());
+       
         FoodCount = StartFoodCount;
+        
+        yield return null;
     }
     
     private IEnumerator EndGameRoutine() {
         yield return new WaitForSeconds(1);
+        
+        yield return null;
     }
    
     private IEnumerator StartTurnRoutine() {
@@ -106,6 +113,8 @@ public sealed class GameController : MonoBehaviour {
         foreach (Module module in modules) {
             module.StartTurn();
         }
+        
+        yield return null;
     }
     
     private IEnumerator EndTurnRoutine() {
@@ -119,6 +128,8 @@ public sealed class GameController : MonoBehaviour {
         foreach (Module module in modules) {
             module.EndTurn();
         }
+        
+        yield return null;
     }
 
     public void DisableInput() {
@@ -170,27 +181,28 @@ public sealed class GameController : MonoBehaviour {
         return false;
     }
     
-    public bool TryPlaceModule(Module module, bool test) {
+    public bool TestModulePlacement(Module module) {
         if (IsModuleOutsideGrid(module)) {
             return false;
         }
         
         foreach (Module otherModule in modules) {
-            if (AreModulesOverlapping(module, otherModule)) {
+            if (module != otherModule && AreModulesOverlapping(module, otherModule)) {
                 return false;
             }
         }
         
         foreach (Module otherModule in modules) {
-            if (AreModulesConnected(module, otherModule)) {
-                if (!test) {
-                    modules.Add(module);
-                }
+            if (module != otherModule && !AreModulesConnected(module, otherModule)) {
                 return true;
             }
         }
 
         return false;
+    }
+    
+    public void PlaceModule(Module module) {
+        modules.Add(module);
     }
 
     public Module FindModuleByTile(Point tile) {
