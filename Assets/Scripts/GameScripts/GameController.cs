@@ -1,5 +1,5 @@
 using UnityEngine;
-using System;
+using System.Collections;
 using System.Collections.Generic;
 
 public sealed class GameController : MonoBehaviour {
@@ -8,7 +8,7 @@ public sealed class GameController : MonoBehaviour {
     public int StartFoodCount = 10;
     public int GridSizeX = 32;
     public int GridSizeY = 32;
-    public float TileSize = 2.0;
+    public float TileSize = 2.0f;
 
     private int foodCount;
     public int FoodCount { 
@@ -56,7 +56,7 @@ public sealed class GameController : MonoBehaviour {
             Instance = this;
         }
         
-        Intro();
+        PlayIntro();
     }
 
     public void PlayIntro() {
@@ -120,15 +120,9 @@ public sealed class GameController : MonoBehaviour {
     }
 
     public void DisableInput() {
-        foreach (Module module in Object.FindObjectsOfType<Module>()) {
-            module.DisableInput();
-        }
     }
     
     public void EnableInput() {
-        foreach (Module module in Object.FindObjectsOfType<Module>()) {
-            module.EnableInput();
-        }
     }
     
     public void UpdateGUI() {
@@ -159,8 +153,8 @@ public sealed class GameController : MonoBehaviour {
     }
 
     public bool AreModulesConnected(Module moduleA, Module moduleB) {
-        for (int iA = 0; iA < moduleA.Tiles.Length; iA++) {
-            for (int iB = 0; iB < moduleB.Tiles.Length; iB++) {
+        for (int iA = 0; iA < moduleA.Tiles.Count; iA++) {
+            for (int iB = 0; iB < moduleB.Tiles.Count; iB++) {
                 Point tileA = moduleA.Tiles[iA];
                 Point tileB = moduleB.Tiles[iB];
                 Point connA = moduleA.Connectors[iA];
@@ -180,7 +174,7 @@ public sealed class GameController : MonoBehaviour {
         }
         
         foreach (Module otherModule in modules) {
-            if (AreModulesOverlapping(module, otherModule) {
+            if (AreModulesOverlapping(module, otherModule)) {
                 return false;
             }
         }
@@ -211,7 +205,7 @@ public sealed class GameController : MonoBehaviour {
 
     public Module FindModuleByType(Module.ModuleType moduleType) {
         foreach (Module module in modules) {
-            if (module.getType() == moduleType) {
+            if (module.Type == moduleType) {
                 return module;
             }
         }

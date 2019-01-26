@@ -1,5 +1,4 @@
 using UnityEngine;
-using System;
 
 public struct Point {
     public readonly int x;
