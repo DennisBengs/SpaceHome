@@ -55,9 +55,7 @@ public class ElevatorEvent : GameEvent
     }
 
     // Start is called before the first frame update
-    void Start()
-    {
-        
+    void Start() {   
         SelectButtons = new List<Image>();
         SelectButtons.Add(GameObject.Find("SelectButton1").GetComponent<Image>());
         SelectButtons.Add(GameObject.Find("SelectButton2").GetComponent<Image>());
@@ -70,8 +68,7 @@ public class ElevatorEvent : GameEvent
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
         
     }
 }
