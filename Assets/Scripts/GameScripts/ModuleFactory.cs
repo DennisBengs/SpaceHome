@@ -1,9 +1,14 @@
 using UnityEngine;
 
 public sealed class ModuleFactory : MonoBehaviour {
-    public Module Prefab;
+    public Module ElevatorModule;
+    public Module BaseModule;
     
+    public Module CreateElevatorModule() {
+        return Instantiate(ElevatorModule);
+    }
+
     public Module CreateRandomModule() {
-        throw new UnityException();
+        return Instantiate(BaseModule);
     }
 }

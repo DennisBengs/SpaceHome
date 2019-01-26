@@ -211,4 +211,17 @@ public sealed class GameController : MonoBehaviour {
         }
         return null;
     }
+
+    public Module GetRandomModule(List<Module> ignore = null) {
+        List<Module> candidates = new List<Module>();
+        foreach (Module module in modules) {
+            if (ignore == null || !ignore.contains(module)) {
+                candidates.Add(module);
+            }
+        }
+        if (candidates.Count == 0) {
+            return null;
+        }
+        return candidates[Random.Range(0, candidates.Count - 1)];
+    }
 }
