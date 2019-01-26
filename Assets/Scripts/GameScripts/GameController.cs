@@ -6,8 +6,10 @@ public sealed class GameController : MonoBehaviour {
     public static GameController Instance = null; 
 
     public int StartFoodCount = 10;
-    public int GridSizeX = 32;
-    public int GridSizeY = 32;
+    public float GridOffsetX = 1.0f;
+    public float GridOffsetY = 1.0f;
+    public int GridSizeX = 14;
+    public int GridSizeY = 9;
     public float TileSize = 2.0f;
 
     private int foodCount;
