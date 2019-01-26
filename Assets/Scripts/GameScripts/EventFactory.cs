@@ -4,12 +4,12 @@ using System.Collections.Generic;
 public sealed class EventFactory : MonoBehaviour {
     public List<GameEvent> Events;
     public GameEvent ElevatorEvent;
-    
+
     public GameEvent CreateEvent() {
-        return Object.Instantiate(ElevatorEvent);
+        return Instantiate(ElevatorEvent);
     }
     
     public GameEvent CreateRandomEvent() {
-        throw new UnityException();
+        return Instantiate(Events[Random.Range(0, Events.Count - 1)]);
     }
 }
