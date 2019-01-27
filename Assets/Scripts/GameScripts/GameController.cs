@@ -177,11 +177,11 @@ public sealed class GameController : MonoBehaviour {
         
         FindModuleByType(ModuleType.Elevator).SpaceElevatorAtPlatform = false;
 
-        yield return new WaitForSeconds(1);
-
         foreach (GameEvent gameEvent in gameEvents) {
             gameEvent.EndTurn();
         }
+
+        yield return new WaitForSeconds(2);
 
         foreach (Module module in modules) {
             module.EndTurn();

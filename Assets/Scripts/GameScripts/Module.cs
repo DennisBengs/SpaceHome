@@ -272,6 +272,7 @@ public sealed class Module : MonoBehaviour {
     }
 
     public void StartTurn() {
+        GameController.Instance.EnergyCount = Mathf.Min(GameController.Instance.EnergyCount - EnergyUsage[Type], 0);
     }
 
     public void EndTurn() {
@@ -279,7 +280,7 @@ public sealed class Module : MonoBehaviour {
             case ModuleType.Empty:
                 break;
             case ModuleType.Hydroponics:
-                GameController.Instance.FoodCount += CrewCount * 2;
+                GameController.Instance.FoodCount += 2;
                 break;
             case ModuleType.SolarCells:
                 GameController.Instance.EnergyCount += 2;
