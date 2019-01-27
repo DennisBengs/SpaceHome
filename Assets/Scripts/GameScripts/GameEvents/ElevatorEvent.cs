@@ -13,7 +13,6 @@ public class ElevatorEvent : GameEvent
 
     public override void EndTurn() {
         Image selectedItem = SelectButtons[SelectedButton];
-        Debug.Log(selectedItem.sprite.name);
         switch(SelectButtons[SelectedButton].sprite.name) {
             case "Power3":
                 GameController.Instance.EnergyCount += 1;
