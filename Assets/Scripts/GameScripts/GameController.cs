@@ -17,7 +17,6 @@ public sealed class GameController : MonoBehaviour {
     public Text FoodText;
     public Text EnergyText;
     public Text TurnText;
-    public Object GameOverScene;
 
     private Module blueprint;
     private Module elevator;
@@ -130,7 +129,7 @@ public sealed class GameController : MonoBehaviour {
         
         yield return new WaitForSeconds(1);
        
-        UnityEngine.SceneManagement.SceneManager.LoadScene(GameOverScene.name);
+        UnityEngine.SceneManagement.SceneManager.LoadScene("GameOver");
         
         yield return null;
     }
