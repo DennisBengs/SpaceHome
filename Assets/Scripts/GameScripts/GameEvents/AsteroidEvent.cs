@@ -8,24 +8,42 @@ public sealed class AsteroidEvent : GameEvent {
     private float deltaPos;
     public SpriteRenderer Border;
     public GameObject Asteroid;
+    public int Difficulty;
+
+    public void Start() {
+        Vector3 cameraPos = GameObject.Find("MainCamera").GetComponent<Transform>().position;
+        GetComponent<Transform>().position = new Vector3(cameraPos.x, cameraPos.y, 1);
+    }
 
     public override void StartTurn() {
         EndTurnActive = false;
         Asteroids = new List<Transform>();
         AsteroidOrigin = new List<Vector3>();
 
-        for (int i = 0; i < 4; i++) {
+        SpawnAsteroids(Random.Range(1, Difficulty));
+    }
+    
+    private void SpawnAsteroids(int numberOfAsteroids) {
+        for(int i = 0; i < numberOfAsteroids; i++) {
+            Vector3 thisPos = GetComponent<Transform>().position;
+
             Transform newAsteroid = Instantiate(Asteroid).transform;
             Vector3 newAsteroidOrigin = new Vector3(
-                Random.Range(0.0f, GameController.Instance.GridSizeX * GameController.Instance.TileSize),
-                GameController.Instance.GridSizeY + 1);
+                Random.Range(0.0f, GameController.Instance.GridSizeX * GameController.Instance.TileSize) + thisPos.x,
+                GameController.Instance.GridSizeY + thisPos.y + 16);
             newAsteroid.position = newAsteroidOrigin;
             newAsteroid.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             Asteroids.Add(newAsteroid);
             AsteroidOrigin.Add(newAsteroidOrigin);
         }
     }
-    
+
+    private void DestroyAsteroids() {
+        foreach(Transform item in Asteroids) {
+            Destroy(item.gameObject);
+        }
+    }
+
     public override void EndTurn() {
         EndTurnActive = true;
         deltaPos = 0;

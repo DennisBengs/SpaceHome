@@ -5,10 +5,7 @@ using UnityEngine.UI;
 
 public class ElevatorEvent : GameEvent
 {
-    public Sprite Food;
-    public Sprite Power;
-    public Sprite Human;
-    public Sprite Module;
+    public List<Sprite> shopItems;
     private List<Image> SelectButtons;
     private Button ConfirmButton;
     private int SelectedButton;
@@ -19,19 +16,27 @@ public class ElevatorEvent : GameEvent
 
     public override void StartTurn() {
         ConfirmedSelection = false;
-        //SelectButtons[0].sprite = Food;
-        //SelectButtons[1].sprite = Power;
-        //SelectButtons[2].sprite = Human;
+        List<int> selectedIndexes = new List<int>();
+
+        while (selectedIndexes.Count < SelectButtons.Count) {
+            int chosenIndex = Random.Range(0, shopItems.Count);
+            if(!selectedIndexes.Contains(chosenIndex)) {
+                selectedIndexes.Add(chosenIndex);
+            }
+        }
+
+        for (int i = 0; i < selectedIndexes.Count; i++) {
+            SelectButtons[i].sprite = shopItems[selectedIndexes[i]];
+        }
+
+        foreach (Image button in SelectButtons) {
+            button.gameObject.GetComponent<Button>().enabled = true;
+            button.color = new Color(1.0f, 1.0f, 1.0f);
+        }
     }
 
     public void SelectShopItem(int ClickedButton) {
         if(!ConfirmedSelection) {
-
-            foreach (Image button in SelectButtons) {
-                button.gameObject.GetComponent<Button>().enabled = true;
-                button.color = new Color(1.0f, 1.0f, 1.0f);
-            }
-
             SelectedButton = ClickedButton;
             SelectButtons[ClickedButton].color = new Color(0.0f, 0.0f, 0.0f);
 
@@ -54,8 +59,7 @@ public class ElevatorEvent : GameEvent
         SelectButtons[SelectedButton].color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
-    // Start is called before the first frame update
-    void Start() {   
+    void Awake() {
         SelectButtons = new List<Image>();
         SelectButtons.Add(GameObject.Find("SelectButton1").GetComponent<Image>());
         SelectButtons.Add(GameObject.Find("SelectButton2").GetComponent<Image>());
@@ -65,6 +69,11 @@ public class ElevatorEvent : GameEvent
         ConfirmButton.gameObject.GetComponent<Image>().color = new Color(0.4f, 0.5f, 0.4f);
         GameObject.Find("Text").GetComponent<Text>().color = new Color(0.7f, 0.7f, 0.7f);
         StartTurn();
+
+        SelectButtons[0].gameObject.GetComponent<Button>().onClick.AddListener(() => SelectShopItem(0));
+        SelectButtons[1].gameObject.GetComponent<Button>().onClick.AddListener(() => SelectShopItem(1));
+        SelectButtons[2].gameObject.GetComponent<Button>().onClick.AddListener(() => SelectShopItem(2));
+        ConfirmButton.onClick.AddListener(Confirm);
     }
 
     // Update is called once per frame
