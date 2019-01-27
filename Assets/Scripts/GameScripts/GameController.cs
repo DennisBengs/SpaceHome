@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -12,39 +13,59 @@ public sealed class GameController : MonoBehaviour {
     public int GridSizeY = 9;
     public float TileSize = 2.0f;
 
+    public GameObject EndTurnButton;
+    public Text FoodText;
+    public Text EnergyText;
+    public Text TurnText;
+
+    private Module blueprint;
+
+    private int turnIndex;
+    public int TurnIndex { 
+        get { 
+            return turnIndex; 
+        } 
+        set {
+            turnIndex = value; 
+            TurnText.text = turnIndex.ToString();
+        } 
+    }
+    
     private int foodCount;
     public int FoodCount { 
         get { 
             return foodCount; 
         } 
-        set { 
+        set {
             foodCount = value; 
-            UpdateGUI(); 
+            FoodText.text = foodCount.ToString();
+        } 
+    }
+
+    private int energyCount;
+    public int EnergyCount { 
+        get { 
+            return energyCount; 
+        } 
+        set { 
+            energyCount = value; 
+            EnergyText.text = energyCount.ToString();
         } 
     }
     public int EnergyUsage { 
         get {
             int sum = 0;
             foreach (Module module in modules) {
-                sum += module.EnergyUsage;
+                sum += module.EnergyUsage[module.Type];
             }
             return sum;
         }
     }
-    public int EnergyProduction { 
+    public int CrewCount { 
         get {
             int sum = 0;
             foreach (Module module in modules) {
-                sum += module.EnergyProduction;
-            }
-            return sum;
-        }
-    }
-    public int HumanCount { 
-        get {
-            int sum = 0;
-            foreach (Module module in modules) {
-                sum += module.HumanCount;
+                sum += module.CrewCount;
             }
             return sum;
         }
@@ -58,11 +79,7 @@ public sealed class GameController : MonoBehaviour {
             Instance = this;
         }
         
-        PlayIntro();
-    }
-
-    public void PlayIntro() {
-        StartCoroutine(PlayIntroRoutine());
+        StartGame();
     }
 
     public void StartGame() {
@@ -81,17 +98,18 @@ public sealed class GameController : MonoBehaviour {
         StartCoroutine(EndTurnRoutine());
     }
     
-    private IEnumerator PlayIntroRoutine() {
-        StartGame();
-        
-        yield return null;
-    }
-    
     private IEnumerator StartGameRoutine() {
-        ModuleFactory.Instance.CreateElevatorModule(new Point(Random.Range(2, GridSizeX - 3), Random.Range(0, GridSizeY - 3)));
-        ModuleFactory.Instance.CreateRandomModule(new Point());
-       
+        EndTurnButton.SetActive(false);
+
         FoodCount = StartFoodCount;
+        EnergyCount = 0;
+        TurnIndex = 0;
+        
+        ModuleFactory.Instance.CreateElevatorModule(new Point(Random.Range(3, GridSizeX - 4), Random.Range(3, GridSizeY - 4)));
+
+        yield return new WaitForSeconds(2);
+
+        StartTurn();
         
         yield return null;
     }
@@ -99,13 +117,28 @@ public sealed class GameController : MonoBehaviour {
     private IEnumerator EndGameRoutine() {
         yield return new WaitForSeconds(1);
         
+        foreach (Module module in modules) {
+            Destroy(module.gameObject);
+        }
+        modules.Clear();
+        gameEvents.Clear();
+        
+        yield return new WaitForSeconds(1);
+        
+        StartGame();
+        
         yield return null;
     }
    
     private IEnumerator StartTurnRoutine() {
-        yield return new WaitForSeconds(1);
+        TurnIndex++;
+        
+        FindModuleByType(Module.ModuleType.Elevator).SpaceElevatorAtPlatform = true;
 
-        EnableInput();
+        yield return new WaitForSeconds(4);
+
+        gameEvents.Add(EventFactory.Instance.CreateElevatorEvent());
+        gameEvents.Add(EventFactory.Instance.CreateRandomEvent());
 
         foreach (GameEvent gameEvent in gameEvents) {
             gameEvent.StartTurn();
@@ -113,14 +146,24 @@ public sealed class GameController : MonoBehaviour {
         foreach (Module module in modules) {
             module.StartTurn();
         }
+
+        blueprint = ModuleFactory.Instance.CreateRandomModule(new Point(GridSizeX / 2, GridSizeY / 2));
+
+        EndTurnButton.SetActive(true);
         
         yield return null;
     }
     
     private IEnumerator EndTurnRoutine() {
-        DisableInput();
+        EndTurnButton.SetActive(false);
         
-        yield return new WaitForSeconds(1);
+        if (!blueprint.Placed) {
+            Destroy(blueprint.gameObject);
+        }
+        
+        FindModuleByType(Module.ModuleType.Elevator).SpaceElevatorAtPlatform = false;
+
+        yield return new WaitForSeconds(2);
 
         foreach (GameEvent gameEvent in gameEvents) {
             gameEvent.EndTurn();
@@ -128,19 +171,12 @@ public sealed class GameController : MonoBehaviour {
         foreach (Module module in modules) {
             module.EndTurn();
         }
+
+        StartTurn();
         
         yield return null;
     }
 
-    public void DisableInput() {
-    }
-    
-    public void EnableInput() {
-    }
-    
-    public void UpdateGUI() {
-    }
-    
     public bool IsModuleOutsideGrid(Module module) {
         foreach (Point tile in module.Tiles) {
             if (tile.x + module.Offset.x < 0 ||
@@ -170,11 +206,18 @@ public sealed class GameController : MonoBehaviour {
             for (int iB = 0; iB < moduleB.Tiles.Count; iB++) {
                 Point tileA = moduleA.Tiles[iA];
                 Point tileB = moduleB.Tiles[iB];
-                Point connA = moduleA.Connectors[iA];
-                Point connB = moduleB.Connectors[iB];
-                if (tileA.x + moduleA.Offset.x + connA.x == tileB.x + moduleB.Offset.x + connB.x && 
-                    tileA.y + moduleA.Offset.y + connA.y == tileB.y + moduleB.Offset.y + connB.y) {
-                    return true;
+                bool[] connectorA = moduleA.Connectors[iA];
+                bool[] connectorB = moduleB.Connectors[iB];
+                for (int cA = 0; cA < 4; cA++) {
+                    for (int cB = 0; cB < 4; cB++) {
+                        if (connectorA[cA] && connectorB[cB] && 
+                            tileA.x + moduleA.Offset.x + Module.SideOffsets[cA].x == tileB.x + moduleB.Offset.x && 
+                            tileA.y + moduleA.Offset.y + Module.SideOffsets[cA].y == tileB.y + moduleB.Offset.y &&
+                            tileA.x + moduleA.Offset.x == tileB.x + moduleB.Offset.x + Module.SideOffsets[cB].x && 
+                            tileA.y + moduleA.Offset.y == tileB.y + moduleB.Offset.y + Module.SideOffsets[cB].y) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
@@ -193,7 +236,7 @@ public sealed class GameController : MonoBehaviour {
         }
         
         foreach (Module otherModule in modules) {
-            if (module != otherModule && !AreModulesConnected(module, otherModule)) {
+            if (module != otherModule && AreModulesConnected(module, otherModule)) {
                 return true;
             }
         }

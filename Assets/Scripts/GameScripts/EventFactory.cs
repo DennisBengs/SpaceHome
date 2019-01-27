@@ -2,10 +2,18 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public sealed class EventFactory : MonoBehaviour {
+    public static EventFactory Instance = null; 
+
     public List<GameEvent> Events;
     public GameEvent ElevatorEvent;
 
-    public GameEvent CreateEvent() {
+    private void Awake() {
+        if (Instance == null) {
+            Instance = this;
+        }
+    }
+
+    public GameEvent CreateElevatorEvent() {
         return Instantiate(ElevatorEvent);
     }
     

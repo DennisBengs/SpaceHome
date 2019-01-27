@@ -11,23 +11,43 @@ public sealed class Module : MonoBehaviour {
         PointDefense = 5,
         RobotControl = 6
     }
-    
-    private string elevatorShape =      
-        "C##C|"+
-        " ## |"+
-        " CC ";
-    
-    private List<string> shapes = new List<string> {
-        "   C   |"+
-        "  #### |"+
-        "C##  #C|"+
-        "  #### |"+
-        "   C   |"+
-        "       |"+
-        "       "
+
+    public Dictionary<ModuleType, int> CrewCapacity = new Dictionary<ModuleType, int>() {
+        { ModuleType.Empty, 0 },
+        { ModuleType.Hydroponics, 1 },
+        { ModuleType.SolarCells, 0 },
+        { ModuleType.Elevator, 1 },
+        { ModuleType.HPG, 2 },
+        { ModuleType.PointDefense, 1 },
+        { ModuleType.RobotControl, 1 }
+    };
+
+    public Dictionary<ModuleType, int> EnergyUsage = new Dictionary<ModuleType, int>() {
+        { ModuleType.Empty, 0 },
+        { ModuleType.Hydroponics, 1 },
+        { ModuleType.SolarCells, 0 },
+        { ModuleType.Elevator, 0 },
+        { ModuleType.HPG, 0 },
+        { ModuleType.PointDefense, 1 },
+        { ModuleType.RobotControl, 1 }
+    };
+        
+    public Dictionary<ModuleType, bool> CanBuild = new Dictionary<ModuleType, bool>() {
+        { ModuleType.Empty, false },
+        { ModuleType.Hydroponics, true },
+        { ModuleType.SolarCells, true },
+        { ModuleType.Elevator, false },
+        { ModuleType.HPG, false },
+        { ModuleType.PointDefense, true },
+        { ModuleType.RobotControl, true }
     };
     
     public bool Destroyed { get; private set; }
+    
+    public int MinTileCount = 2;
+    public int MaxTileCount = 8;
+    public int MinConnectorCount = 2;
+    public int MaxConnectorCount = 5;
 
     private ModuleType type;
     public ModuleType Type { 
@@ -41,15 +61,6 @@ public sealed class Module : MonoBehaviour {
     }
     
     private bool damaged;
-    public bool Damaged { 
-        get {
-            return damaged;
-        }
-        set {
-            damaged = value;
-            UpdateSprites();
-        }
-    }
     
     private bool powered;
     public bool Powered { 
@@ -72,88 +83,125 @@ public sealed class Module : MonoBehaviour {
             UpdateSprites();
         }
     }
+
+    public bool Placed { get; private set; }
     
     private Vector2 placeOffset;
     private Vector2 dragFrom;
+    private Vector2 center;
+    private bool highlighted = false;
     private bool dragging = false;
-    private bool placed = false;
     private bool validPlacement = false;
     
     public Point Offset { get; private set; }
     public List<Point> Tiles { get; private set; }
-    public List<Point> Connectors { get; private set; }
-    
-    public int EnergyUsage { get; private set; }
-    public int EnergyProduction { get; private set; }
-    public int HumanCount { get; private set; }
+    public List<bool[]> Connectors { get; private set; }
 
+    public bool SpaceElevatorAtPlatform { get; set; }
+    
+    public int CrewCount { get; private set; }
+
+    public GameObject SpaceElevatorContainer;
+    public Transform SpaceElevator;
     public SpriteRenderer SpriteTemplate;
     public CrewPosition CrewPositionTemplate;
     
-    public Sprite ElevatorSprite;
     public Sprite TileExteriorSprite;
     public Sprite TileInteriorSprite;
     public Sprite TileInteriorJoinSprite;
     public Sprite TileConnectorSprite;
     public Sprite TileDamageSprite;
-    public Color ValidPlaceColor = new Color(0.3f, 0.8f, 0.3f, 0.5f);
-    public Color InvalidPlaceColor = new Color(0.8f, 0.3f, 0.3f, 0.5f);
-    public Color UnpoweredColor = new Color(0.5f, 0.5f, 0.5f);
-    public Color UnderConstructionColor = new Color(0.8f, 0.8f, 0.8f);
-    public Color DamageColor = new Color(1.0f, 0.0f, 0.0f);
-    public List<Color> TypeColors = new List<Color> {Color.green, Color.green, Color.yellow, Color.grey, Color.blue, Color.red, Color.cyan};
-    public List<Sprite> TypeIconSprites;
-
-    private SpriteRenderer icon;
+    public Color ValidPlaceColor;
+    public Color InvalidPlaceColor;
+    public Color ValidPlaceHullColor;
+    public Color InvalidPlaceHullColor;
+    public Color UnpoweredColor;
+    public Color UnderConstructionColor;
+    public Color DamageColor;
+    public Color HullColor;
+    public Color HighlightHullColor;
+    public List<Color> TypeColors;
+    public List<SpriteRenderer> TypeIcons;
+    
     private List<SpriteRenderer> interiors = new List<SpriteRenderer>();
     private List<SpriteRenderer> exteriors = new List<SpriteRenderer>();
     private List<SpriteRenderer> damages = new List<SpriteRenderer>();
     private List<CrewPosition> crewPositions = new List<CrewPosition>();
     private bool dirtyPosition = true;
     
-    private Point[] sideOffsets = {new Point(-1, 0), new Point(0, 1), new Point(1, 0), new Point(0, -1)};
-    private float[] sideRotations = {0.0f, -90.0f, -180.0f, -270.0f};
+    public static readonly Point[] SideOffsets = {new Point(-1, 0), new Point(0, 1), new Point(1, 0), new Point(0, -1)};
+    public static readonly float[] SideRotations = {0.0f, -90.0f, -180.0f, -270.0f};
 
     public void Setup(ModuleType moduleType, Point offset) {
         Tiles = new List<Point>();
-        Connectors = new List<Point>();
+        Connectors = new List<bool[]>();
 
         Offset = offset;
+        placeOffset = new Vector2(offset.x, offset.y);
+        
         if (moduleType == ModuleType.Elevator) {
-            GameController.Instance.PlaceModule(this);
-            placed = true;
-        }
+            SpaceElevatorContainer.SetActive(true);
 
-        string shape = moduleType == ModuleType.Elevator ? elevatorShape : shapes[Random.Range(0, shapes.Count -1)];
-        string[] rows = shape.Split('|');
-        for (int y = 0; y < rows.Length; y++) {
-            for (int x = 0; x < rows[y].Length; x++) {
-                char c = rows[y][x];
-                if (c != '#') {
-                    continue;
-                }
-                Tiles.Add(new Point(x, y));
-                Point connector = new Point(0, 0);
-                for (int i = 0; i < 4; i++) {
-                    Point o = sideOffsets[i];
-                    int x2 = x + o.x;
-                    int y2 = y + o.y;
-                    if (x2 >= 0 && y2 >= 0 && x2 < rows[y].Length && 
-                        y2 < rows.Length && rows[y2][x2] == 'C') {
-                        connector = o;
+            GameController.Instance.PlaceModule(this);
+            Placed = true;
+
+            Tiles.Add(new Point(0, 0));
+            Connectors.Add(new bool[] { true, true, true, true });
+        } else {
+            int tileCount = Random.Range(MinTileCount, MaxTileCount);
+            int connectorCount = Random.Range(MinConnectorCount, MaxConnectorCount);
+
+            Tiles.Add(new Point(0, 0));
+            Connectors.Add(new bool[] { false, false, false, false });
+
+            for (int i = 0; i < tileCount; i++) {
+                while (true) {
+                    Point fromTile = Tiles[Random.Range(0, Tiles.Count - 1)];
+                    Point sideOffset = SideOffsets[Random.Range(0, 3)];
+                    Point newTile = new Point(fromTile.x + sideOffset.x, fromTile.y + sideOffset.y);
+
+                    bool found = false;
+                    foreach (Point tile in Tiles) {
+                        if (tile.x == newTile.x && tile.y == newTile.y) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        Tiles.Add(newTile);
+                        Connectors.Add(new bool[] { false, false, false, false });
+                        break;
                     }
                 }
-                Connectors.Add(connector);
+            }
+            
+            for (int i = 0; i < connectorCount; i++) {
+                for (int tries = 0; tries < 50; tries++) {
+                    int tileIndex = Random.Range(0, Tiles.Count - 1);
+                    int sideIndex = Random.Range(0, 3);
+                    
+                    Point fromTile = Tiles[tileIndex];
+                    Point sideOffset = SideOffsets[sideIndex];
+                    Point targetTile = new Point(fromTile.x + sideOffset.x, fromTile.y + sideOffset.y);
+                    
+                    bool found = false;
+                    foreach (Point tile in Tiles) {
+                        if (tile.x == targetTile.x && tile.y == targetTile.y) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        Connectors[tileIndex][sideIndex] = true;
+                        break;
+                    }
+                }       
             }
         }
         
-        icon = Instantiate(SpriteTemplate);
-        icon.transform.SetParent(transform);
-        icon.transform.position = GetCenter();
-        
         for (int n = 0; n < Tiles.Count; n++) {
             Point tile = Tiles[n];
-            Point conn = Connectors[n];
+            bool[] connector = Connectors[n];
             
             BoxCollider boxCollider = gameObject.AddComponent<BoxCollider>();
             boxCollider.size = new Vector3(GameController.Instance.TileSize, GameController.Instance.TileSize);
@@ -183,12 +231,12 @@ public sealed class Module : MonoBehaviour {
             sprite.transform.localPosition = new Vector3(
                 (tile.x + 0.5f) * GameController.Instance.TileSize,
                 (tile.y + 0.5f) * GameController.Instance.TileSize,
-                2.0f);
+                1.1f);
             damages.Add(sprite);
         
             for (int i = 0; i < 4; i++) {
-                Point o = sideOffsets[i];
-                float r = sideRotations[i];
+                Point o = SideOffsets[i];
+                float r = SideRotations[i];
                 int x2 = tile.x + o.x;
                 int y2 = tile.y + o.y;
                 foreach (Point otherTile in Tiles) {
@@ -205,7 +253,7 @@ public sealed class Module : MonoBehaviour {
                         interiors.Add(sprite);
                     }
                 }
-                if (conn.x == o.x && conn.y == o.y) {
+                if (connector[i]) {
                     sprite = Instantiate(SpriteTemplate);
                     sprite.sprite = TileConnectorSprite;
                     sprite.transform.SetParent(transform);
@@ -225,7 +273,7 @@ public sealed class Module : MonoBehaviour {
     
     private void UpdateSprites() {
         foreach (SpriteRenderer renderer in interiors) {
-            if (!placed) {
+            if (!Placed) {
                 renderer.color = validPlacement ? ValidPlaceColor : InvalidPlaceColor;
             } else if (!powered) {
                 renderer.color = UnpoweredColor;
@@ -236,19 +284,61 @@ public sealed class Module : MonoBehaviour {
             }
         }
         foreach (SpriteRenderer renderer in exteriors) {
-            renderer.color = placed ? new Color(0.0f, 0.0f, 0.0f, 1.0f) : validPlacement ? ValidPlaceColor : InvalidPlaceColor;
+            renderer.color = highlighted ? HighlightHullColor : !Placed ? validPlacement ? ValidPlaceHullColor : InvalidPlaceHullColor : HullColor;
         }
         foreach (SpriteRenderer renderer in damages) {
-            renderer.color = damaged ? new Color(1.0f, 0.0f, 0.0f, 1.0f) : new Color(0.0f, 0.0f, 0.0f, 0.0f);
+            renderer.color = damaged ? DamageColor : new Color(0.0f, 0.0f, 0.0f, 0.0f);
         }
-        icon.sprite = TypeIconSprites[(int)Type];
-        icon.color = placed ? new Color(1.0f, 1.0f, 1.0f, 1.0f) : new Color(0.0f, 0.0f, 0.0f, 0.0f);
+    }
+    
+    public void Damage() {
+        damaged = true;
     }
 
     public void StartTurn() {
+        switch (Type) {
+            case ModuleType.Empty:
+                break;
+            case ModuleType.Hydroponics:
+                break;
+            case ModuleType.SolarCells:
+                break;
+            case ModuleType.Elevator:
+                break;
+            case ModuleType.HPG:
+                break;
+            case ModuleType.PointDefense:
+                break;
+            case ModuleType.RobotControl:
+                break;
+        }
     }
 
     public void EndTurn() {
+        if (UnderConstruction && CrewCount > 0) {
+            UnderConstruction = false;
+            return;
+        }
+
+        switch (Type) {
+            case ModuleType.Empty:
+                break;
+            case ModuleType.Hydroponics:
+                GameController.Instance.FoodCount += CrewCount * 2;
+                break;
+            case ModuleType.SolarCells:
+                GameController.Instance.EnergyCount += 2;
+                break;
+            case ModuleType.Elevator:
+                break;
+            case ModuleType.HPG:
+                GameController.Instance.FoodCount += CrewCount * 2;
+                break;
+            case ModuleType.PointDefense:
+                break;
+            case ModuleType.RobotControl:
+                break;
+        }
     }
     
     public Vector3 GetCenter() {
@@ -258,6 +348,18 @@ public sealed class Module : MonoBehaviour {
             avg.y += transform.position.y + tile.y * GameController.Instance.TileSize;
         }
         return avg / Tiles.Count;
+    }
+    
+    private void OnMouseOver() {
+        if (!Input.GetMouseButtonDown(0)) {
+            highlighted = true;
+            UpdateSprites();
+        }
+    }
+
+    private void OnMouseExit() {
+        highlighted = false;
+        UpdateSprites();
     }
     
     private void OnMouseDown() {
@@ -270,7 +372,41 @@ public sealed class Module : MonoBehaviour {
     }
 
     private void Update() {
-        if (!placed) {
+        if (Type == ModuleType.Empty) {
+            float x = 0.0f;
+            for (int i = 0; i < TypeIcons.Count; i++) {
+                SpriteRenderer icon = TypeIcons[i];
+                if (icon != null) {
+                    icon.gameObject.SetActive(true);
+                    icon.gameObject.SetActive(Placed);
+                    icon.transform.position = new Vector3(center.x + x, center.y, icon.transform.position.z);
+                    x += GameController.Instance.TileSize;
+
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    RaycastHit hit;
+                    if (Physics.Raycast(ray, out hit, Mathf.Infinity)) {
+                        if (hit.collider == icon.GetComponent<Collider>()) {
+                            if (Input.GetMouseButtonDown(0)) {
+                                Type = (ModuleType)i;
+                                UnderConstruction = true;
+                                icon.color = Color.white;
+                            } else {
+                                icon.color = Color.red;
+                            }
+                        } else {
+                            icon.color = Color.white;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (Type == ModuleType.Elevator) {
+            SpaceElevator.transform.localPosition = Vector3.Lerp(SpaceElevator.transform.localPosition, 
+                new Vector3(1.0f, SpaceElevatorAtPlatform ? -1.0f : -25.0f, 1.0f), 0.02f);
+        }
+        
+        if (!Placed) {
             if (dragging) {
                 Vector2 dragAt = Module.GetMousePosition();
                 placeOffset += (dragAt - dragFrom) / GameController.Instance.TileSize;
@@ -288,7 +424,8 @@ public sealed class Module : MonoBehaviour {
                 
             if (!dragging && validPlacement) {
                 GameController.Instance.PlaceModule(this);
-                placed = true;
+                Placed = true;
+                center = GetCenter();
                 UpdateSprites();
             }
         }

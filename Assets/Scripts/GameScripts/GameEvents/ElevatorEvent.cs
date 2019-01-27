@@ -19,9 +19,9 @@ public class ElevatorEvent : GameEvent
 
     public override void StartTurn() {
         ConfirmedSelection = false;
-        SelectButtons[0].sprite = Food;
-        SelectButtons[1].sprite = Power;
-        SelectButtons[2].sprite = Human;
+        //SelectButtons[0].sprite = Food;
+        //SelectButtons[1].sprite = Power;
+        //SelectButtons[2].sprite = Human;
     }
 
     public void SelectShopItem(int ClickedButton) {
