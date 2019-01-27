@@ -272,7 +272,7 @@ public sealed class Module : MonoBehaviour {
     }
 
     public void StartTurn() {
-        GameController.Instance.EnergyCount = Mathf.Min(GameController.Instance.EnergyCount - EnergyUsage[Type], 0);
+        GameController.Instance.EnergyCount = Mathf.Max(GameController.Instance.EnergyCount - EnergyUsage[Type], 0);
     }
 
     public void EndTurn() {
