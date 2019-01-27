@@ -23,12 +23,10 @@ public sealed class AsteroidEvent : GameEvent {
 
         int numberOfAsteroids = 0;
 
-        if(GameController.Instance.TurnIndex > GameController.Instance.GetModuleCount()) {
+        numberOfAsteroids = Random.Range(1, GameController.Instance.GetModuleCount() + 1) + (int)(GameController.Instance.TurnIndex / 3);
+        if(numberOfAsteroids > GameController.Instance.GetModuleCount()) {
             numberOfAsteroids = GameController.Instance.GetModuleCount();
-        } else {
-            numberOfAsteroids = GameController.Instance.TurnIndex;
         }
-
         SpawnAsteroids(numberOfAsteroids);
     }
     
