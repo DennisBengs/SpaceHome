@@ -19,6 +19,7 @@ public sealed class GameController : MonoBehaviour {
     public Text TurnText;
 
     private Module blueprint;
+    private Module elevator;
 
     private int turnIndex;
     public int TurnIndex { 
@@ -105,7 +106,7 @@ public sealed class GameController : MonoBehaviour {
         EnergyCount = 0;
         TurnIndex = 0;
         
-        ModuleFactory.Instance.CreateElevatorModule(new Point(Random.Range(3, GridSizeX - 4), Random.Range(3, GridSizeY - 4)));
+        elevator = ModuleFactory.Instance.CreateElevatorModule(new Point(Random.Range(3, GridSizeX - 3), Random.Range(3, GridSizeY - 3)));
 
         yield return new WaitForSeconds(2);
 
@@ -155,6 +156,7 @@ public sealed class GameController : MonoBehaviour {
         
         for (int i = modules.Count - 1; i > -1; i--) {
             if (modules[i].IsDestroyed) {
+                Destroy(modules[i].gameObject);
                 modules.RemoveAt(i);
             }
         }
@@ -175,15 +177,20 @@ public sealed class GameController : MonoBehaviour {
         
         FindModuleByType(ModuleType.Elevator).SpaceElevatorAtPlatform = false;
 
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
 
         foreach (GameEvent gameEvent in gameEvents) {
             gameEvent.EndTurn();
         }
-        
+
         foreach (Module module in modules) {
             module.EndTurn();
+            if (module.Type != ModuleType.Elevator && !IsConnectedToElevator(module)) {
+                module.Disconnect();
+            }
         }
+        
+        yield return new WaitForSeconds(2);
         
         for (int i = gameEvents.Count - 1; i > -1; i--) {
             if (gameEvents[i].IsDestroyed) {
@@ -193,11 +200,16 @@ public sealed class GameController : MonoBehaviour {
         
         for (int i = modules.Count - 1; i > -1; i--) {
             if (modules[i].IsDestroyed) {
+                Destroy(modules[i].gameObject);
                 modules.RemoveAt(i);
             }
         }
-
-        StartTurn();
+        
+        if (elevator.IsDestroyed) {
+            EndGame();
+        } else {
+            StartTurn();
+        }
         
         yield return null;
     }
@@ -227,6 +239,9 @@ public sealed class GameController : MonoBehaviour {
     }
 
     public bool AreModulesConnected(Module moduleA, Module moduleB) {
+        if (moduleA.IsDestroyed || moduleB.IsDestroyed) {
+            return false;
+        }
         for (int iA = 0; iA < moduleA.Tiles.Count; iA++) {
             for (int iB = 0; iB < moduleB.Tiles.Count; iB++) {
                 Point tileA = moduleA.Tiles[iA];
@@ -273,6 +288,25 @@ public sealed class GameController : MonoBehaviour {
         modules.Add(module);
     }
 
+    public bool IsConnectedToElevator(Module module) {
+        List<Module> open = new List<Module> { module };
+        List<Module> closed = new List<Module>();
+        while (open.Count > 0) {
+            Module mo = open[0];
+            closed.Add(mo);
+            open.RemoveAt(0);
+            foreach (Module mc in modules) {
+                if (!closed.Contains(mc) && AreModulesConnected(mo, mc)) {
+                    if (mc.Type == ModuleType.Elevator) {
+                        return true;
+                    }
+                    open.Add(mc);
+                }
+            }
+        }
+        return false;
+    }
+
     public Module FindModuleByTile(Point tile) {
         foreach (Module module in modules) {
             foreach (Point otherTile in module.Tiles) {
@@ -304,7 +338,7 @@ public sealed class GameController : MonoBehaviour {
         if (candidates.Count == 0) {
             return null;
         }
-        return candidates[Random.Range(0, candidates.Count - 1)];
+        return candidates[Random.Range(0, candidates.Count)];
     }
     
     public int GetModuleCount() {
