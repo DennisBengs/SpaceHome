@@ -47,8 +47,13 @@ public class ElevatorEvent : GameEvent
 
     public void SelectShopItem(int ClickedButton) {
         if(!ConfirmedSelection) {
+            foreach (Image button in SelectButtons) {
+                button.gameObject.GetComponent<Button>().enabled = true;
+                button.color = new Color(1.0f, 1.0f, 1.0f);
+            }
+
             SelectedButton = ClickedButton;
-            SelectButtons[ClickedButton].color = new Color(0.0f, 0.0f, 0.0f);
+            SelectButtons[ClickedButton].color = new Color(0.0f, 1.0f, 0.0f);
 
             ConfirmButton.enabled = true;
             ConfirmButton.gameObject.GetComponent<Image>().color = new Color(0.0f, 0.8f, 0.0f);
