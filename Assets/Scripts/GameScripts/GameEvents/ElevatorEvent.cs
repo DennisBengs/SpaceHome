@@ -28,16 +28,15 @@ public class ElevatorEvent : GameEvent
         for (int i = 0; i < selectedIndexes.Count; i++) {
             SelectButtons[i].sprite = shopItems[selectedIndexes[i]];
         }
+
+        foreach (Image button in SelectButtons) {
+            button.gameObject.GetComponent<Button>().enabled = true;
+            button.color = new Color(1.0f, 1.0f, 1.0f);
+        }
     }
 
     public void SelectShopItem(int ClickedButton) {
         if(!ConfirmedSelection) {
-
-            foreach (Image button in SelectButtons) {
-                button.gameObject.GetComponent<Button>().enabled = true;
-                button.color = new Color(1.0f, 1.0f, 1.0f);
-            }
-
             SelectedButton = ClickedButton;
             SelectButtons[ClickedButton].color = new Color(0.0f, 0.0f, 0.0f);
 
