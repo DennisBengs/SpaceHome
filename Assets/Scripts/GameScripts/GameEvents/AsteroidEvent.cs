@@ -20,16 +20,6 @@ public sealed class AsteroidEvent : GameEvent {
         Asteroids = new List<Transform>();
         AsteroidOrigin = new List<Vector3>();
         TargetModules = new List<Module>();
-
-        int numberOfAsteroids = 0;
-
-        numberOfAsteroids = Random.Range(1, GameController.Instance.GetModuleCount() + 1) + (int)(GameController.Instance.TurnIndex / 3);
-
-        if (numberOfAsteroids > GameController.Instance.GetModuleCount()) {
-            numberOfAsteroids = GameController.Instance.GetModuleCount();
-        }
-
-        SpawnAsteroids(numberOfAsteroids);
     }
     
     private void SpawnAsteroids(int numberOfAsteroids) {
@@ -54,6 +44,15 @@ public sealed class AsteroidEvent : GameEvent {
     }
 
     public override void EndTurn() {
+        int numberOfAsteroids = 0;
+
+        numberOfAsteroids = Random.Range(1, GameController.Instance.GetModuleCount() + 1) + (int)(GameController.Instance.TurnIndex / 3);
+
+        if (numberOfAsteroids > GameController.Instance.GetModuleCount()) {
+            numberOfAsteroids = GameController.Instance.GetModuleCount();
+        }
+
+        SpawnAsteroids(numberOfAsteroids);
         for (int i = 0; i < Asteroids.Count; i++) {
             TargetModules.Add(GameController.Instance.GetRandomModule(TargetModules));
         }
@@ -69,7 +68,8 @@ public sealed class AsteroidEvent : GameEvent {
 
             int i = 0;
             foreach (Transform asteroid in Asteroids) {
-                asteroid.position = Vector3.Lerp(AsteroidOrigin[i], TargetModules[i].GetCenter(), deltaPos);
+                Vector3 newPos = Vector3.Lerp(AsteroidOrigin[i], TargetModules[i].GetCenter(), deltaPos);
+                asteroid.position = newPos;
                 i++;
             }
 
