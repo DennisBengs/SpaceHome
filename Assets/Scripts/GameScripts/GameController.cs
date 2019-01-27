@@ -183,14 +183,18 @@ public sealed class GameController : MonoBehaviour {
 
         yield return new WaitForSeconds(2);
 
+        bool destroyed = false;
         foreach (Module module in modules) {
             module.EndTurn();
             if (module.Type != ModuleType.Elevator && !IsConnectedToElevator(module)) {
                 module.Disconnect();
+                destroyed = true;
             }
         }
         
-        yield return new WaitForSeconds(2);
+        if (destroyed) {
+            yield return new WaitForSeconds(2.0f);
+        }
         
         for (int i = gameEvents.Count - 1; i > -1; i--) {
             if (gameEvents[i].IsDestroyed) {
