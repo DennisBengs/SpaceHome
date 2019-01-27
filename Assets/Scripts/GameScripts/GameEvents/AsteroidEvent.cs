@@ -56,28 +56,28 @@ public sealed class AsteroidEvent : GameEvent {
     public override void EndTurn() {
         EndTurnActive = true;
         deltaPos = 0;
-        foreach(Module targetModule in TargetModules) {
-            targetModule.Damage();
-        }
     }
 
     private void Update() {
         float alpha = Mathf.Abs(Mathf.Sin(Time.realtimeSinceStartup * 2 * Mathf.PI * 0.3f));
         Border.color = new Color(1, 0, 0, alpha);
         if (EndTurnActive) {
-            deltaPos += Time.deltaTime * 2;
+            deltaPos += Time.deltaTime * 1.0f;
 
             int i = 0;
             foreach (Transform asteroid in Asteroids) {
                 asteroid.position = Vector3.Lerp(AsteroidOrigin[i], TargetModules[i].GetCenter(), deltaPos);
                 i++;
             }
-        }
 
-        if(deltaPos >= 1) {
-            DestroyAsteroids();
-            IsDestroyed = true;
-            EndTurnActive = false;
+            if (deltaPos >= 1) {
+                DestroyAsteroids();
+                IsDestroyed = true;
+                EndTurnActive = false;
+                foreach (Module targetModule in TargetModules) {
+                    targetModule.Damage();
+                }
+            }
         }
     }
 }
