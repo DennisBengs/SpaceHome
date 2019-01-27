@@ -38,6 +38,8 @@ public sealed class Module : MonoBehaviour {
     
     private bool damaged;
     
+    private bool disconnected;
+    
     private bool powered;
     public bool Powered { 
         get {
@@ -256,7 +258,9 @@ public sealed class Module : MonoBehaviour {
     }
     
     public void Damage() {
+        disconnected = damaged;
         damaged = true;
+        UpdateSprites();
     }
 
     public void StartTurn() {
