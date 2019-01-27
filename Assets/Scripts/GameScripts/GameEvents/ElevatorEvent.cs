@@ -12,6 +12,16 @@ public class ElevatorEvent : GameEvent
     private bool ConfirmedSelection;
 
     public override void EndTurn() {
+        Image selectedItem = SelectButtons[SelectedButton];
+        switch(SelectButtons[SelectedButton].sprite.name) {
+            case "Power3":
+                GameController.Instance.EnergyCount += 1;
+                break;
+            case "Grain":
+                GameController.Instance.FoodCount += 1;
+                break;
+        }
+        IsDestroyed = true;
     }
 
     public override void StartTurn() {
@@ -37,8 +47,13 @@ public class ElevatorEvent : GameEvent
 
     public void SelectShopItem(int ClickedButton) {
         if(!ConfirmedSelection) {
+            foreach (Image button in SelectButtons) {
+                button.gameObject.GetComponent<Button>().enabled = true;
+                button.color = new Color(1.0f, 1.0f, 1.0f);
+            }
+
             SelectedButton = ClickedButton;
-            SelectButtons[ClickedButton].color = new Color(0.0f, 0.0f, 0.0f);
+            SelectButtons[ClickedButton].color = new Color(0.0f, 1.0f, 0.0f);
 
             ConfirmButton.enabled = true;
             ConfirmButton.gameObject.GetComponent<Image>().color = new Color(0.0f, 0.8f, 0.0f);
