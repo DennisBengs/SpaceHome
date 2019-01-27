@@ -13,13 +13,13 @@ public sealed class ModuleFactory : MonoBehaviour {
     
     public Module CreateElevatorModule(Point offset) {
         Module module = Instantiate(BaseModule);
-        module.Setup(Module.ModuleType.Elevator, offset);
+        module.Setup(ModuleType.Elevator, offset);
         return module;
     }
 
     public Module CreateRandomModule(Point offset) {
         Module module = Instantiate(BaseModule);
-        module.Setup(Module.ModuleType.Empty, offset);
+        module.Setup(ModuleType.Empty, offset);
         return module;
     }
 }

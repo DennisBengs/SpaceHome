@@ -133,7 +133,7 @@ public sealed class GameController : MonoBehaviour {
     private IEnumerator StartTurnRoutine() {
         TurnIndex++;
         
-        FindModuleByType(Module.ModuleType.Elevator).SpaceElevatorAtPlatform = true;
+        FindModuleByType(ModuleType.Elevator).SpaceElevatorAtPlatform = true;
 
         yield return new WaitForSeconds(4);
 
@@ -145,6 +145,18 @@ public sealed class GameController : MonoBehaviour {
         }
         foreach (Module module in modules) {
             module.StartTurn();
+        }
+
+        for (int i = gameEvents.Count - 1; i > -1; i--) {
+            if (gameEvents[i].IsDestroyed) {
+                gameEvents.RemoveAt(i);
+            }
+        }
+        
+        for (int i = modules.Count - 1; i > -1; i--) {
+            if (modules[i].IsDestroyed) {
+                modules.RemoveAt(i);
+            }
         }
 
         blueprint = ModuleFactory.Instance.CreateRandomModule(new Point(GridSizeX / 2, GridSizeY / 2));
@@ -161,15 +173,28 @@ public sealed class GameController : MonoBehaviour {
             Destroy(blueprint.gameObject);
         }
         
-        FindModuleByType(Module.ModuleType.Elevator).SpaceElevatorAtPlatform = false;
+        FindModuleByType(ModuleType.Elevator).SpaceElevatorAtPlatform = false;
 
         yield return new WaitForSeconds(2);
 
         foreach (GameEvent gameEvent in gameEvents) {
             gameEvent.EndTurn();
         }
+        
         foreach (Module module in modules) {
             module.EndTurn();
+        }
+        
+        for (int i = gameEvents.Count - 1; i > -1; i--) {
+            if (gameEvents[i].IsDestroyed) {
+                gameEvents.RemoveAt(i);
+            }
+        }
+        
+        for (int i = modules.Count - 1; i > -1; i--) {
+            if (modules[i].IsDestroyed) {
+                modules.RemoveAt(i);
+            }
         }
 
         StartTurn();
@@ -260,7 +285,7 @@ public sealed class GameController : MonoBehaviour {
         return null;
     }
 
-    public Module FindModuleByType(Module.ModuleType moduleType) {
+    public Module FindModuleByType(ModuleType moduleType) {
         foreach (Module module in modules) {
             if (module.Type == moduleType) {
                 return module;

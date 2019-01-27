@@ -2,14 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public sealed class Module : MonoBehaviour {
-    public enum ModuleType {
-        Empty = 0,
-        Hydroponics = 1,
-        SolarCells = 2, 
-        Elevator = 3,
-        PointDefense = 4
-    }
-
     public Dictionary<ModuleType, int> CrewCapacity = new Dictionary<ModuleType, int>() {
         { ModuleType.Empty, 0 },
         { ModuleType.Hydroponics, 2 },
@@ -25,16 +17,8 @@ public sealed class Module : MonoBehaviour {
         { ModuleType.Elevator, 0 },
         { ModuleType.PointDefense, 1 }
     };
-        
-    public Dictionary<ModuleType, bool> CanBuild = new Dictionary<ModuleType, bool>() {
-        { ModuleType.Empty, false },
-        { ModuleType.Hydroponics, true },
-        { ModuleType.SolarCells, true },
-        { ModuleType.Elevator, false },
-        { ModuleType.PointDefense, true }
-    };
-    
-    public bool Destroyed { get; private set; }
+
+    public bool IsDestroyed { get; private set; }
     
     public int MinTileCount = 2;
     public int MaxTileCount = 8;
@@ -84,6 +68,7 @@ public sealed class Module : MonoBehaviour {
 
     public GameObject SpaceElevatorContainer;
     public Transform SpaceElevator;
+    public SpriteRenderer Turret;
     public SpriteRenderer SpriteTemplate;
     public CrewPosition CrewPositionTemplate;
     
@@ -101,7 +86,7 @@ public sealed class Module : MonoBehaviour {
     public Color HullColor;
     public Color HighlightHullColor;
     public List<Color> TypeColors;
-    public List<SpriteRenderer> TypeIcons;
+    public List<IconButton> IconButtons;
     
     private List<SpriteRenderer> interiors = new List<SpriteRenderer>();
     private List<SpriteRenderer> exteriors = new List<SpriteRenderer>();
@@ -267,6 +252,7 @@ public sealed class Module : MonoBehaviour {
         foreach (SpriteRenderer renderer in damages) {
             renderer.color = damaged ? DamageColor : new Color(0.0f, 0.0f, 0.0f, 0.0f);
         }
+        Turret.gameObject.SetActive(Type == ModuleType.PointDefense);
     }
     
     public void Damage() {
@@ -296,8 +282,8 @@ public sealed class Module : MonoBehaviour {
     public Vector3 GetCenter() {
         Vector3 avg = new Vector3();
         foreach (Point tile in Tiles) {
-            avg.x += transform.position.x + tile.x * GameController.Instance.TileSize;
-            avg.y += transform.position.y + tile.y * GameController.Instance.TileSize;
+            avg.x += transform.position.x + (tile.x + 0.5f) * GameController.Instance.TileSize;
+            avg.y += transform.position.y + (tile.y + 0.5f) * GameController.Instance.TileSize;
         }
         return avg / Tiles.Count;
     }
@@ -324,32 +310,27 @@ public sealed class Module : MonoBehaviour {
     }
 
     private void Update() {
-        if (Type == ModuleType.Empty) {
-            float x = 0.0f;
-            for (int i = 0; i < TypeIcons.Count; i++) {
-                SpriteRenderer icon = TypeIcons[i];
-                if (icon != null) {
-                    icon.gameObject.SetActive(true);
-                    icon.gameObject.SetActive(Placed);
-                    icon.transform.position = new Vector3(center.x + x, center.y, icon.transform.position.z);
-                    x += GameController.Instance.TileSize;
-
-                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                    RaycastHit hit;
-                    if (Physics.Raycast(ray, out hit, Mathf.Infinity)) {
-                        if (hit.collider == icon.GetComponent<Collider>()) {
-                            if (Input.GetMouseButtonDown(0)) {
-                                Type = (ModuleType)i;
-                                icon.color = Color.white;
-                            } else {
-                                icon.color = Color.red;
-                            }
-                        } else {
-                            icon.color = Color.white;
+        if (Type == ModuleType.Empty && Placed) {
+            for (int i = 0; i < IconButtons.Count; i++) {
+                IconButton button = IconButtons[i];
+                button.gameObject.SetActive(true);
+                float angle = (((float)i / IconButtons.Count) + Time.realtimeSinceStartup * 0.05f) * Mathf.PI * 2.0f;
+                button.transform.position = new Vector3(center.x + Mathf.Cos(angle) * 1.5f, center.y + Mathf.Sin(angle) * 1.5f, button.transform.position.z);
+            }
+            
+            foreach (IconButton button in IconButtons) {
+                if (button.Selected) {
+                    Type = button.Type;
+                    foreach (IconButton otherButton in IconButtons) {
+                        if (otherButton != button) {
+                            otherButton.gameObject.SetActive(false);
                         }
                     }
+                    button.transform.position = new Vector3(center.x, center.y, button.transform.position.z);
+                    Powered = true;
                 }
             }
+        
         }
         
         if (Type == ModuleType.Elevator) {
@@ -385,7 +366,7 @@ public sealed class Module : MonoBehaviour {
             transform.position = new Vector3(
                 GameController.Instance.GridOffsetX + Offset.x * GameController.Instance.TileSize,
                 GameController.Instance.GridOffsetY + Offset.y * GameController.Instance.TileSize,
-                0.0f);
+                Placed ? 0.0f : -0.1f);
             dirtyPosition = false;
         }
     }
