@@ -7,19 +7,15 @@ public sealed class Module : MonoBehaviour {
         Hydroponics = 1,
         SolarCells = 2, 
         Elevator = 3,
-        HPG = 4,
-        PointDefense = 5,
-        RobotControl = 6
+        PointDefense = 4
     }
 
     public Dictionary<ModuleType, int> CrewCapacity = new Dictionary<ModuleType, int>() {
         { ModuleType.Empty, 0 },
-        { ModuleType.Hydroponics, 1 },
+        { ModuleType.Hydroponics, 2 },
         { ModuleType.SolarCells, 0 },
         { ModuleType.Elevator, 1 },
-        { ModuleType.HPG, 2 },
-        { ModuleType.PointDefense, 1 },
-        { ModuleType.RobotControl, 1 }
+        { ModuleType.PointDefense, 1 }
     };
 
     public Dictionary<ModuleType, int> EnergyUsage = new Dictionary<ModuleType, int>() {
@@ -27,9 +23,7 @@ public sealed class Module : MonoBehaviour {
         { ModuleType.Hydroponics, 1 },
         { ModuleType.SolarCells, 0 },
         { ModuleType.Elevator, 0 },
-        { ModuleType.HPG, 0 },
-        { ModuleType.PointDefense, 1 },
-        { ModuleType.RobotControl, 1 }
+        { ModuleType.PointDefense, 1 }
     };
         
     public Dictionary<ModuleType, bool> CanBuild = new Dictionary<ModuleType, bool>() {
@@ -37,9 +31,7 @@ public sealed class Module : MonoBehaviour {
         { ModuleType.Hydroponics, true },
         { ModuleType.SolarCells, true },
         { ModuleType.Elevator, false },
-        { ModuleType.HPG, false },
-        { ModuleType.PointDefense, true },
-        { ModuleType.RobotControl, true }
+        { ModuleType.PointDefense, true }
     };
     
     public bool Destroyed { get; private set; }
@@ -69,17 +61,6 @@ public sealed class Module : MonoBehaviour {
         }
         set {
             powered = value;
-            UpdateSprites();
-        }
-    }
-    
-    private bool underConstruction;
-    public bool UnderConstruction { 
-        get {
-            return underConstruction;
-        }
-        set {
-            underConstruction = value;
             UpdateSprites();
         }
     }
@@ -116,7 +97,6 @@ public sealed class Module : MonoBehaviour {
     public Color ValidPlaceHullColor;
     public Color InvalidPlaceHullColor;
     public Color UnpoweredColor;
-    public Color UnderConstructionColor;
     public Color DamageColor;
     public Color HullColor;
     public Color HighlightHullColor;
@@ -277,8 +257,6 @@ public sealed class Module : MonoBehaviour {
                 renderer.color = validPlacement ? ValidPlaceColor : InvalidPlaceColor;
             } else if (!powered) {
                 renderer.color = UnpoweredColor;
-            } else if (underConstruction) {
-                renderer.color = UnderConstructionColor;
             } else {
                 renderer.color = TypeColors[(int)Type];
             }
@@ -296,30 +274,9 @@ public sealed class Module : MonoBehaviour {
     }
 
     public void StartTurn() {
-        switch (Type) {
-            case ModuleType.Empty:
-                break;
-            case ModuleType.Hydroponics:
-                break;
-            case ModuleType.SolarCells:
-                break;
-            case ModuleType.Elevator:
-                break;
-            case ModuleType.HPG:
-                break;
-            case ModuleType.PointDefense:
-                break;
-            case ModuleType.RobotControl:
-                break;
-        }
     }
 
     public void EndTurn() {
-        if (UnderConstruction && CrewCount > 0) {
-            UnderConstruction = false;
-            return;
-        }
-
         switch (Type) {
             case ModuleType.Empty:
                 break;
@@ -331,12 +288,7 @@ public sealed class Module : MonoBehaviour {
                 break;
             case ModuleType.Elevator:
                 break;
-            case ModuleType.HPG:
-                GameController.Instance.FoodCount += CrewCount * 2;
-                break;
             case ModuleType.PointDefense:
-                break;
-            case ModuleType.RobotControl:
                 break;
         }
     }
@@ -388,7 +340,6 @@ public sealed class Module : MonoBehaviour {
                         if (hit.collider == icon.GetComponent<Collider>()) {
                             if (Input.GetMouseButtonDown(0)) {
                                 Type = (ModuleType)i;
-                                UnderConstruction = true;
                                 icon.color = Color.white;
                             } else {
                                 icon.color = Color.red;

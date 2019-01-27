@@ -360,7 +360,6 @@ MonoBehaviour:
   ValidPlaceHullColor: {r: 0.78911304, g: 1, b: 0.7688679, a: 1}
   InvalidPlaceHullColor: {r: 1, g: 0.7688679, b: 0.7688679, a: 1}
   UnpoweredColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  UnderConstructionColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   DamageColor: {r: 0, g: 0, b: 0, a: 1}
   HullColor: {r: 0.16037738, g: 0.16037738, b: 0.16037738, a: 1}
   HighlightHullColor: {r: 1, g: 1, b: 1, a: 1}
@@ -368,18 +367,14 @@ MonoBehaviour:
   - {r: 1, g: 1, b: 1, a: 1}
   - {r: 0.4669811, g: 1, b: 0.4669811, a: 1}
   - {r: 1, g: 0.9552733, b: 0.43867922, a: 1}
-  - {r: 1, g: 0.4575472, b: 0.4575472, a: 1}
-  - {r: 0.3537736, g: 0.5301715, b: 1, a: 1}
-  - {r: 0.990566, g: 0.07943219, b: 0.07943219, a: 1}
-  - {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
+  - {r: 0.3529412, g: 0.5294118, b: 1, a: 1}
+  - {r: 1, g: 0.2562452, b: 0.24056602, a: 1}
   TypeIcons:
   - {fileID: 0}
   - {fileID: 7150376901408642975}
   - {fileID: 3650328038846708120}
   - {fileID: 0}
-  - {fileID: 0}
   - {fileID: 6530293169750457673}
-  - {fileID: 7853761669204541598}
 --- !u!1 &4460762237375462872
 GameObject:
   m_ObjectHideFlags: 0

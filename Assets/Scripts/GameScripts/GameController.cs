@@ -281,4 +281,8 @@ public sealed class GameController : MonoBehaviour {
         }
         return candidates[Random.Range(0, candidates.Count - 1)];
     }
+    
+    public int GetModuleCount() {
+        return modules.Count;
+    }
 }
