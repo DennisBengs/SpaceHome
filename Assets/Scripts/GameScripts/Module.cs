@@ -38,7 +38,7 @@ public sealed class Module : MonoBehaviour {
     
     private bool damaged;
     
-    private bool disconnected;
+    public bool Disconnected { get; private set; }
     
     private bool powered;
     public bool Powered { 
@@ -115,16 +115,16 @@ public sealed class Module : MonoBehaviour {
             Tiles.Add(new Point(0, 0));
             Connectors.Add(new bool[] { true, true, true, true });
         } else {
-            int tileCount = Random.Range(MinTileCount, MaxTileCount);
-            int connectorCount = Random.Range(MinConnectorCount, MaxConnectorCount);
+            int tileCount = Random.Range(MinTileCount, MaxTileCount + 1);
+            int connectorCount = Random.Range(MinConnectorCount, MaxConnectorCount + 1);
 
             Tiles.Add(new Point(0, 0));
             Connectors.Add(new bool[] { false, false, false, false });
 
             for (int i = 0; i < tileCount; i++) {
                 while (true) {
-                    Point fromTile = Tiles[Random.Range(0, Tiles.Count - 1)];
-                    Point sideOffset = SideOffsets[Random.Range(0, 3)];
+                    Point fromTile = Tiles[Random.Range(0, Tiles.Count)];
+                    Point sideOffset = SideOffsets[Random.Range(0, 4)];
                     Point newTile = new Point(fromTile.x + sideOffset.x, fromTile.y + sideOffset.y);
 
                     bool found = false;
@@ -144,8 +144,8 @@ public sealed class Module : MonoBehaviour {
             
             for (int i = 0; i < connectorCount; i++) {
                 for (int tries = 0; tries < 50; tries++) {
-                    int tileIndex = Random.Range(0, Tiles.Count - 1);
-                    int sideIndex = Random.Range(0, 3);
+                    int tileIndex = Random.Range(0, Tiles.Count);
+                    int sideIndex = Random.Range(0, 4);
                     
                     Point fromTile = Tiles[tileIndex];
                     Point sideOffset = SideOffsets[sideIndex];
@@ -257,13 +257,22 @@ public sealed class Module : MonoBehaviour {
         Turret.gameObject.SetActive(Type == ModuleType.PointDefense);
     }
     
+    public void Disconnect() {
+        Disconnected = true;
+        IsDestroyed = true;
+    }
+    
     public void Damage() {
-        disconnected = damaged;
-        damaged = true;
-        UpdateSprites();
+        if (damaged) {
+            Disconnect();
+        } else {
+            damaged = true;
+            UpdateSprites();
+        }
     }
 
     public void StartTurn() {
+        GameController.Instance.EnergyCount = Mathf.Min(GameController.Instance.EnergyCount - EnergyUsage[Type], 0);
     }
 
     public void EndTurn() {
@@ -271,7 +280,7 @@ public sealed class Module : MonoBehaviour {
             case ModuleType.Empty:
                 break;
             case ModuleType.Hydroponics:
-                GameController.Instance.FoodCount += CrewCount * 2;
+                GameController.Instance.FoodCount += 2;
                 break;
             case ModuleType.SolarCells:
                 GameController.Instance.EnergyCount += 2;
@@ -314,6 +323,12 @@ public sealed class Module : MonoBehaviour {
     }
 
     private void Update() {
+        if (Disconnected) {
+            transform.localScale = Vector3.Lerp(transform.localScale, Vector3.zero, 0.01f);
+            transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, transform.position.y - 15.0f, transform.position.z), 0.01f);
+            transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, new Vector3(45.0f, 30.0f, 45.0f), 0.03f);
+        }
+        
         if (Type == ModuleType.Empty && Placed) {
             for (int i = 0; i < IconButtons.Count; i++) {
                 IconButton button = IconButtons[i];

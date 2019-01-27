@@ -20,20 +20,11 @@ public sealed class AsteroidEvent : GameEvent {
         Asteroids = new List<Transform>();
         AsteroidOrigin = new List<Vector3>();
         TargetModules = new List<Module>();
-
-        int numberOfAsteroids = 0;
-
-        numberOfAsteroids = Random.Range(1, GameController.Instance.GetModuleCount() + 1) + (int)(GameController.Instance.TurnIndex / 3);
-        if(numberOfAsteroids > GameController.Instance.GetModuleCount()) {
-            numberOfAsteroids = GameController.Instance.GetModuleCount();
-        }
-        SpawnAsteroids(numberOfAsteroids);
     }
     
     private void SpawnAsteroids(int numberOfAsteroids) {
         for(int i = 0; i < numberOfAsteroids; i++) {
             Vector3 thisPos = GetComponent<Transform>().position;
-
             Transform newAsteroid = Instantiate(Asteroid).transform;
             Vector3 newAsteroidOrigin = new Vector3(
                 Random.Range(0.0f, GameController.Instance.GridSizeX * GameController.Instance.TileSize) + thisPos.x,
@@ -42,7 +33,6 @@ public sealed class AsteroidEvent : GameEvent {
             newAsteroid.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             Asteroids.Add(newAsteroid);
             AsteroidOrigin.Add(newAsteroidOrigin);
-            TargetModules.Add(GameController.Instance.GetRandomModule(TargetModules));
         }
     }
 
@@ -54,30 +44,43 @@ public sealed class AsteroidEvent : GameEvent {
     }
 
     public override void EndTurn() {
+        int numberOfAsteroids = 0;
+
+        numberOfAsteroids = Random.Range(1, GameController.Instance.GetModuleCount() + 1) + (int)(GameController.Instance.TurnIndex / 3);
+
+        if (numberOfAsteroids > GameController.Instance.GetModuleCount()) {
+            numberOfAsteroids = GameController.Instance.GetModuleCount();
+        }
+
+        SpawnAsteroids(numberOfAsteroids);
+        for (int i = 0; i < Asteroids.Count; i++) {
+            TargetModules.Add(GameController.Instance.GetRandomModule(TargetModules));
+        }
         EndTurnActive = true;
         deltaPos = 0;
-        foreach(Module targetModule in TargetModules) {
-            targetModule.Damage();
-        }
     }
 
     private void Update() {
         float alpha = Mathf.Abs(Mathf.Sin(Time.realtimeSinceStartup * 2 * Mathf.PI * 0.3f));
         Border.color = new Color(1, 0, 0, alpha);
         if (EndTurnActive) {
-            deltaPos += Time.deltaTime * 2;
+            deltaPos += Time.deltaTime * 1.0f;
 
             int i = 0;
             foreach (Transform asteroid in Asteroids) {
-                asteroid.position = Vector3.Lerp(AsteroidOrigin[i], TargetModules[i].GetCenter(), deltaPos);
+                Vector3 newPos = Vector3.Lerp(AsteroidOrigin[i], TargetModules[i].GetCenter(), deltaPos);
+                asteroid.position = newPos;
                 i++;
             }
-        }
 
-        if(deltaPos >= 1) {
-            DestroyAsteroids();
-            IsDestroyed = true;
-            EndTurnActive = false;
+            if (deltaPos >= 1) {
+                DestroyAsteroids();
+                IsDestroyed = true;
+                EndTurnActive = false;
+                foreach (Module targetModule in TargetModules) {
+                    targetModule.Damage();
+                }
+            }
         }
     }
 }
