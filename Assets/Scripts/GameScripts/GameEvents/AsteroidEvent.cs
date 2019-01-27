@@ -4,11 +4,11 @@ using System.Collections.Generic;
 public sealed class AsteroidEvent : GameEvent {
     private List<Transform> Asteroids;
     private List<Vector3> AsteroidOrigin;
+    private List<Module> TargetModules;
     private bool EndTurnActive;
     private float deltaPos;
     public SpriteRenderer Border;
     public GameObject Asteroid;
-    public int Difficulty;
 
     public void Start() {
         Vector3 cameraPos = GameObject.Find("MainCamera").GetComponent<Transform>().position;
@@ -19,8 +19,17 @@ public sealed class AsteroidEvent : GameEvent {
         EndTurnActive = false;
         Asteroids = new List<Transform>();
         AsteroidOrigin = new List<Vector3>();
+        TargetModules = new List<Module>();
 
-        SpawnAsteroids(Random.Range(1, Difficulty));
+        int numberOfAsteroids = 0;
+
+        if(GameController.Instance.TurnIndex > GameController.Instance.GetModuleCount()) {
+            numberOfAsteroids = GameController.Instance.GetModuleCount();
+        } else {
+            numberOfAsteroids = GameController.Instance.TurnIndex;
+        }
+
+        SpawnAsteroids(numberOfAsteroids);
     }
     
     private void SpawnAsteroids(int numberOfAsteroids) {
@@ -35,6 +44,7 @@ public sealed class AsteroidEvent : GameEvent {
             newAsteroid.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             Asteroids.Add(newAsteroid);
             AsteroidOrigin.Add(newAsteroidOrigin);
+            TargetModules.Add(GameController.Instance.GetRandomModule(TargetModules));
         }
     }
 
@@ -42,25 +52,34 @@ public sealed class AsteroidEvent : GameEvent {
         foreach(Transform item in Asteroids) {
             Destroy(item.gameObject);
         }
+        Asteroids.Clear();
     }
 
     public override void EndTurn() {
         EndTurnActive = true;
         deltaPos = 0;
+        foreach(Module targetModule in TargetModules) {
+            targetModule.Damage();
+        }
     }
 
     private void Update() {
         float alpha = Mathf.Abs(Mathf.Sin(Time.realtimeSinceStartup * 2 * Mathf.PI * 0.3f));
         Border.color = new Color(1, 0, 0, alpha);
         if (EndTurnActive) {
-            deltaPos += Time.deltaTime / 1.75f;
+            deltaPos += Time.deltaTime * 2;
 
             int i = 0;
             foreach (Transform asteroid in Asteroids) {
-                Module module = GameController.Instance.GetRandomModule();
-                asteroid.position = Vector3.Lerp(AsteroidOrigin[i], module.GetCenter(), deltaPos);
+                asteroid.position = Vector3.Lerp(AsteroidOrigin[i], TargetModules[i].GetCenter(), deltaPos);
                 i++;
             }
+        }
+
+        if(deltaPos >= 1) {
+            DestroyAsteroids();
+            IsDestroyed = true;
+            EndTurnActive = false;
         }
     }
 }
