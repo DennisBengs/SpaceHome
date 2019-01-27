@@ -47,6 +47,7 @@ MonoBehaviour:
   Border: {fileID: 288942494}
   Asteroid: {fileID: 8997680949938532182, guid: 01a2bc6d5f727ad46a6973f2b00241d9,
     type: 3}
+  Difficulty: 1
 --- !u!1 &288942492
 GameObject:
   m_ObjectHideFlags: 0
