@@ -17,6 +17,7 @@ public sealed class GameController : MonoBehaviour {
     public Text FoodText;
     public Text EnergyText;
     public Text TurnText;
+    public GameObject GameOver;
 
     private Module blueprint;
     private Module elevator;
@@ -100,6 +101,7 @@ public sealed class GameController : MonoBehaviour {
     }
     
     private IEnumerator StartGameRoutine() {
+        GameOver.SetActive(false);
         EndTurnButton.SetActive(false);
 
         FoodCount = StartFoodCount;
@@ -186,6 +188,10 @@ public sealed class GameController : MonoBehaviour {
         }
 
         yield return new WaitForSeconds(2);
+
+        if (elevator.IsDestroyed) {
+            GameOver.SetActive(true);
+        }
 
         bool destroyed = false;
         foreach (Module module in modules) {
