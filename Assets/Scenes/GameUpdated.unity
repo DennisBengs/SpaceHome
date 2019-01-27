@@ -151,6 +151,7 @@ MonoBehaviour:
   FoodText: {fileID: 1022253375}
   EnergyText: {fileID: 1013136290}
   TurnText: {fileID: 1699721601}
+  GameOverScene: {fileID: 102900000, guid: 975a956eb1410a84282a59bae217a257, type: 3}
 --- !u!4 &341165136
 Transform:
   m_ObjectHideFlags: 0
