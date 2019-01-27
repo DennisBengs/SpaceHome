@@ -46,7 +46,7 @@ public sealed class AsteroidEvent : GameEvent {
     public override void EndTurn() {
         int numberOfAsteroids = 0;
 
-        numberOfAsteroids = Random.Range(1, GameController.Instance.GetModuleCount() + 1) + (int)(GameController.Instance.TurnIndex / 3);
+        numberOfAsteroids = Random.Range(1, GameController.Instance.GetModuleCount() + 1);
 
         if (numberOfAsteroids > GameController.Instance.GetModuleCount()) {
             numberOfAsteroids = GameController.Instance.GetModuleCount();
