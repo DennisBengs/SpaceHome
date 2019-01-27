@@ -50,7 +50,6 @@ public sealed class AsteroidEvent : GameEvent {
         foreach(Transform item in Asteroids) {
             Destroy(item.gameObject);
         }
-
         Asteroids.Clear();
     }
 
