@@ -12,6 +12,17 @@ public class ElevatorEvent : GameEvent
     private bool ConfirmedSelection;
 
     public override void EndTurn() {
+        Image selectedItem = SelectButtons[SelectedButton];
+        Debug.Log(selectedItem.sprite.name);
+        switch(SelectButtons[SelectedButton].sprite.name) {
+            case "Power3":
+                GameController.Instance.EnergyCount += 1;
+                break;
+            case "Grain":
+                GameController.Instance.FoodCount += 1;
+                break;
+        }
+        IsDestroyed = true;
     }
 
     public override void StartTurn() {
