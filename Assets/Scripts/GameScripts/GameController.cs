@@ -118,6 +118,9 @@ public sealed class GameController : MonoBehaviour {
     private IEnumerator EndGameRoutine() {
         yield return new WaitForSeconds(1);
         
+        foreach (GameEvent gameEvent in gameEvents) {
+            Destroy(gameEvent.gameObject);
+        }
         foreach (Module module in modules) {
             Destroy(module.gameObject);
         }
@@ -150,6 +153,7 @@ public sealed class GameController : MonoBehaviour {
 
         for (int i = gameEvents.Count - 1; i > -1; i--) {
             if (gameEvents[i].IsDestroyed) {
+                Destroy(gameEvents[i].gameObject);
                 gameEvents.RemoveAt(i);
             }
         }
@@ -198,6 +202,7 @@ public sealed class GameController : MonoBehaviour {
         
         for (int i = gameEvents.Count - 1; i > -1; i--) {
             if (gameEvents[i].IsDestroyed) {
+                Destroy(gameEvents[i].gameObject);
                 gameEvents.RemoveAt(i);
             }
         }
