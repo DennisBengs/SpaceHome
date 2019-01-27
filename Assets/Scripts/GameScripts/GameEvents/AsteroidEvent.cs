@@ -4,11 +4,11 @@ using System.Collections.Generic;
 public sealed class AsteroidEvent : GameEvent {
     private List<Transform> Asteroids;
     private List<Vector3> AsteroidOrigin;
+    private List<Module> TargetModules;
     private bool EndTurnActive;
     private float deltaPos;
     public SpriteRenderer Border;
     public GameObject Asteroid;
-    public int Difficulty;
 
     public void Start() {
         Vector3 cameraPos = GameObject.Find("MainCamera").GetComponent<Transform>().position;
@@ -19,8 +19,16 @@ public sealed class AsteroidEvent : GameEvent {
         EndTurnActive = false;
         Asteroids = new List<Transform>();
         AsteroidOrigin = new List<Vector3>();
+        TargetModules = new List<Module>();
 
-        SpawnAsteroids(Random.Range(1, Difficulty));
+        int numberOfAsteroids = 0;
+
+        if(GameController.Instance.TurnIndex > GameController.Instance.GetModuleCount()) {
+            numberOfAsteroids = GameController.Instance.GetModuleCount();
+        } else {
+            numberOfAsteroids = GameController.Instance.TurnIndex;
+        }
+        SpawnAsteroids(Random.Range(1, numberOfAsteroids));
     }
     
     private void SpawnAsteroids(int numberOfAsteroids) {
@@ -35,6 +43,8 @@ public sealed class AsteroidEvent : GameEvent {
             newAsteroid.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             Asteroids.Add(newAsteroid);
             AsteroidOrigin.Add(newAsteroidOrigin);
+
+            TargetModules.Add(GameController.Instance.GetRandomModule(TargetModules));
         }
     }
 
